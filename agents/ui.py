@@ -15,6 +15,8 @@ from PyQt5.QtChart import (
 from PyQt5.QtCore import QPointF, QLineF, Qt
 from PyQt5.QtGui import QPainter, QPainterPath, QColor, QPolygonF, QImage
 
+from agents.model import *
+=======
 from agents.model import (
     get_quickstart_model,
     AgentShape,
@@ -668,7 +670,7 @@ class Application:
                     isinstance(controller, ToggleButton)
                     and controller.isChecked()
                 ):
-                    controller.func(controller.model)
+                    controller.func()
                 elif isinstance(controller, Monitor):
                     controller.update_label()
 
@@ -680,7 +682,7 @@ class Application:
 
     def add_button(self, button_spec, row):
         btn = QtWidgets.QPushButton(button_spec.label)
-        btn.clicked.connect(lambda x: button_spec.function(self.model))
+        btn.clicked.connect(lambda x: button_spec.function())
         row.addWidget(btn)
         self.controllers.append(btn)
 
@@ -775,15 +777,18 @@ class Application:
             elif type(plot_spec) is AgentGraphSpec:
                 self.add_agent_graph(plot_spec, plots_box)
 
-
-def run(model):
+def run(setup, step):
+    global __model
     # Initialize application
     qapp = QtWidgets.QApplication(sys.argv)
 
+    button(setup, "Setup")
+    button(step, "Step")
+    toggle_button(step, "Go")
     # We need to store a reference to the application, even though we are not
     # using it, as otherwise it will be garbage-collected and the UI will get
     # some very weird behavior.
-    app = Application(model)  # noqa: F841
+    app = Application(get_anonymous_model())  # noqa: F841
 
     # Launch the application
     qapp.exec_()
